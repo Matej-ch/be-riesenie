@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
@@ -24,7 +27,11 @@ use Symfony\Component\Validator\Constraints as Assert;
     ],
     normalizationContext: ['groups' => ['read'], 'swagger_definition_name' => 'Read'],
     denormalizationContext: ['groups' => ['write'], 'swagger_definition_name' => 'Write'],
-    order: ['id' => 'DESC'])]
+    order: ['id' => 'DESC'],
+    paginationItemsPerPage: 20)]
+#[ApiFilter(SearchFilter::class, properties: [
+    'category.name' => "exact"
+])]
 class Product
 {
     #[ORM\Id]
@@ -35,6 +42,7 @@ class Product
 
     #[ORM\Column(length: 512)]
     #[Assert\NotBlank]
+    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
     #[Groups(['read', 'write'])]
     private ?string $name = null;
 
@@ -44,19 +52,22 @@ class Product
     #[ORM\Column]
     #[Assert\NotBlank]
     #[Assert\PositiveOrZero]
+    #[ApiFilter(RangeFilter::class)]
     #[Groups(['read', 'write'])]
     private ?int $price = null;
 
     /**
      * Category that products belongs to
      */
-    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['read', 'write'])]
+    #[Assert\Valid]
     private ?Category $category = null;
 
-    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Image::class, orphanRemoval: true)]
-    #[Groups(['read'])]
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: Image::class, cascade: ['persist'], orphanRemoval: true)]
+    #[Groups(['read', 'write'])]
+    #[Assert\Valid]
     private Collection $images;
 
     public function __construct()
