@@ -2,7 +2,10 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Action\NotFoundAction;
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use App\Repository\CategoryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -10,7 +13,18 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
-#[ApiResource(operations: [])]
+#[ApiResource(operations: [
+    new Get(
+        controller: NotFoundAction::class,
+        output: false,
+        read: false
+    ),
+    new GetCollection(
+        controller: NotFoundAction::class,
+        output: false,
+        read: false
+    ),
+])]
 class Category
 {
     #[ORM\Id]
