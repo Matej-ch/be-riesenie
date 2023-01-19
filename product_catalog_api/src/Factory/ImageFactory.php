@@ -47,7 +47,7 @@ final class ImageFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'name' => self::faker()->text(256),
+            'name' => self::faker()->word(),
             'path' => self::faker()->filePath(),
             'product' => ProductFactory::random(),
         ];

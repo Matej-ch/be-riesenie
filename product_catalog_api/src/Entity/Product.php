@@ -3,31 +3,60 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
-#[ApiResource]
+#[ApiResource(
+    operations: [
+        new Get(),
+        new GetCollection(),
+        new Post(),
+        new Patch()
+    ],
+    normalizationContext: ['groups' => ['read'], 'swagger_definition_name' => 'Read'],
+    denormalizationContext: ['groups' => ['write'], 'swagger_definition_name' => 'Write'],
+    order: ['id' => 'DESC'])]
 class Product
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('read')]
     private ?int $id = null;
 
     #[ORM\Column(length: 512)]
+    #[Assert\NotBlank]
+    #[Groups(['read', 'write'])]
     private ?string $name = null;
 
+    /**
+     * Price of product in cents
+     */
     #[ORM\Column]
+    #[Assert\NotBlank]
+    #[Assert\PositiveOrZero]
+    #[Groups(['read', 'write'])]
     private ?int $price = null;
 
+    /**
+     * Category that products belongs to
+     */
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['read', 'write'])]
     private ?Category $category = null;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Image::class, orphanRemoval: true)]
+    #[Groups(['read'])]
     private Collection $images;
 
     public function __construct()

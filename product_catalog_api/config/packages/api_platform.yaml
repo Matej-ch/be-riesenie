@@ -1,0 +1,4 @@
+api_platform:
+  title: 'Product catalog API'
+  description: 'This API allows you to list products and edit them'
+  version: '0.0.1'

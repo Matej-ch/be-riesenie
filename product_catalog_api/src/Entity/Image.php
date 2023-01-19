@@ -2,10 +2,13 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\ImageRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
+#[ApiResource(operations: [])]
 class Image
 {
     #[ORM\Id]
@@ -14,6 +17,7 @@ class Image
     private ?int $id = null;
 
     #[ORM\Column(length: 512)]
+    #[Assert\NotBlank]
     private ?string $name = null;
 
     #[ORM\Column(length: 1024)]
