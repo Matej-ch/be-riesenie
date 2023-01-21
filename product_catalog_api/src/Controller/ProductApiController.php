@@ -5,6 +5,8 @@ namespace App\Controller;
 
 use App\Repository\ProductRepository;
 use App\Service\ProductCacheInvalidator;
+use Pagerfanta\Doctrine\ORM\QueryAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,13 +34,11 @@ class ProductApiController extends AbstractController
 
         //@TODO: here we should search product inside elasticSearch, instead only simple search on name, price an category name is implemented
 
-        $paginator = $this->productRepository->getPaginator($request->query->all(), $offset);
+        $queryBuilder = $this->productRepository->getPaginator($request->query->all(), $offset);
+        $adapter = new QueryAdapter($queryBuilder);
+        $pager = Pagerfanta::createForCurrentPageWithMaxPerPage($adapter, $request->query->get('page', 1), $this->productRepository::PRODUCTS_PER_PAGE);
 
-        return $this->json([
-            'products' => $paginator,
-            'previous' => $offset - ProductRepository::PRODUCTS_PER_PAGE,
-            'next' => min(count($paginator), $offset + ProductRepository::PRODUCTS_PER_PAGE),
-        ], 200, [], ['groups' => ['read']]);
+        return $this->json($pager, 200, [], ['groups' => ['read']]);
     }
 
     #[Route('/api/products/{id<\d+>}', methods: ['GET'])]

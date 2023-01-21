@@ -4,8 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\Tools\Pagination\Paginator;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder;
 
@@ -26,7 +24,7 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getPaginator($searchParameters = null, int $offset = 0): Paginator
+    public function getPaginator($searchParameters = null, int $offset = 0): QueryBuilder
     {
         $qb = $this->createQueryBuilder('product');
 
@@ -40,10 +38,7 @@ class ProductRepository extends ServiceEntityRepository
             $queryBuilder = $this->addSearchParameters($qb, $searchParameters);
         }
 
-        return new Paginator($queryBuilder
-            ->setMaxResults(self::PRODUCTS_PER_PAGE)
-            ->setFirstResult($offset)
-            ->getQuery());
+        return $queryBuilder;
     }
 
     private function addSearchParameters(QueryBuilder $qb, $searchParameters): QueryBuilder
