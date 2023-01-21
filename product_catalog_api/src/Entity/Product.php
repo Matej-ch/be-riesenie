@@ -2,14 +2,6 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Doctrine\Orm\Filter\RangeFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Metadata\ApiFilter;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
-use ApiPlatform\Metadata\Patch;
-use ApiPlatform\Metadata\Post;
 use App\Repository\ProductRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,20 +10,6 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
-#[ApiResource(
-    operations: [
-        new Get(),
-        new GetCollection(),
-        new Post(),
-        new Patch()
-    ],
-    normalizationContext: ['groups' => ['read'], 'swagger_definition_name' => 'Read'],
-    denormalizationContext: ['groups' => ['write'], 'swagger_definition_name' => 'Write'],
-    order: ['id' => 'DESC'],
-    paginationItemsPerPage: 20)]
-#[ApiFilter(SearchFilter::class, properties: [
-    'category.name' => "exact"
-])]
 class Product
 {
     #[ORM\Id]
@@ -42,8 +20,7 @@ class Product
 
     #[ORM\Column(length: 512)]
     #[Assert\NotBlank]
-    #[ApiFilter(SearchFilter::class, strategy: 'partial')]
-    #[Groups(['read', 'write'])]
+    #[Groups('read')]
     private ?string $name = null;
 
     /**
@@ -52,8 +29,7 @@ class Product
     #[ORM\Column]
     #[Assert\NotBlank]
     #[Assert\PositiveOrZero]
-    #[ApiFilter(RangeFilter::class)]
-    #[Groups(['read', 'write'])]
+    #[Groups('read')]
     private ?int $price = null;
 
     /**
@@ -61,13 +37,13 @@ class Product
      */
     #[ORM\ManyToOne(cascade: ['persist'], inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['read', 'write'])]
     #[Assert\Valid]
+    #[Groups(['read', 'write'])]
     private ?Category $category = null;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: Image::class, cascade: ['persist'], orphanRemoval: true)]
-    #[Groups(['read', 'write'])]
     #[Assert\Valid]
+    #[Groups(['read', 'write'])]
     private Collection $images;
 
     public function __construct()
