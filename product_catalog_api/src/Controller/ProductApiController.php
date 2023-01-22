@@ -8,32 +8,26 @@ use App\Form\ProductType;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
 use App\Service\ProductCacheInvalidator;
+use App\Service\ProductCachingService;
 use Pagerfanta\Doctrine\ORM\QueryAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Component\Form\FormFactory;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 class ProductApiController extends ApiController
 {
     private ProductRepository $productRepository;
-    private TagAwareCacheInterface $productCache;
 
-    public function __construct(ProductRepository $productRepository, TagAwareCacheInterface $productCache)
+    public function __construct(ProductRepository $productRepository)
     {
         $this->productRepository = $productRepository;
-        $this->productCache = $productCache;
     }
 
     #[Route('/api/products', methods: ['GET'])]
     public function getProducts(Request $request): Response
     {
-
         //@TODO: here we should search product inside elasticSearch, instead only simple search on name, price an category name is implemented
 
         $queryBuilder = $this->productRepository->getPaginator($request->query->all());
@@ -44,16 +38,11 @@ class ProductApiController extends ApiController
     }
 
     #[Route('/api/products/{id<\d+>}', methods: ['GET'])]
-    public function getProduct(Request $request, NormalizerInterface $normalizer): Response
+    public function getProduct(Request $request, ProductCachingService $productCachingService): Response
     {
         $id = $request->get('id');
 
-        $product = $this->productCache->get("product_$id", function (ItemInterface $item) use ($id, $normalizer) {
-            $item->expiresAfter(1800);
-            $item->tag(['products', "product-$id"]);
-
-            return $normalizer->normalize($this->productRepository->findOne($id), context: ['groups' => 'read']);
-        });
+        $product = $productCachingService->get($id);
 
         if (!$product) {
             return $this->json("Product with id $id not found", Response::HTTP_NOT_FOUND);
@@ -63,7 +52,10 @@ class ProductApiController extends ApiController
     }
 
     #[Route('/api/products', methods: ['POST'])]
-    public function createProduct(Request $request, FormFactoryInterface $formFactoryInterface, ProductRepository $productRepository, CategoryRepository $categoryRepository): Response
+    public function createProduct(Request               $request, FormFactoryInterface $formFactoryInterface,
+                                  ProductRepository     $productRepository,
+                                  CategoryRepository    $categoryRepository,
+                                  ProductCachingService $productCachingService): Response
     {
 
         $form = $this->buildForm($formFactoryInterface, ProductType::class);
@@ -83,9 +75,13 @@ class ProductApiController extends ApiController
 
         $productRepository->save($product, true);
 
-        //@TODO caching product can be done here, after product was saved into database
+        $id = $product->getId();
 
-        return $this->respond('Product was saved', Response::HTTP_CREATED);
+        $productNormalized = $productCachingService->get($id);
+
+        //@TODO Add document to Elasticsearch (POST with json body)
+
+        return $this->respond($productNormalized, Response::HTTP_CREATED);
     }
 
     #[Route('/api/products/{id<\d+>}', methods: ['PATCH'])]
@@ -99,9 +95,11 @@ class ProductApiController extends ApiController
             return $this->json("Product with id $id not found", Response::HTTP_NOT_FOUND);
         }
 
-        $product->setName($request->get('name'));
-        $product->setPrice($request->get('price'));
-        $this->productRepository->save($product, true);
+        //@TODO update data in database, after successful update, cache data update elasticsearch
+
+        //@TODO caching product can be done here, after product was saved into database
+
+        //@TODO Update document in Elasticsearch
 
         return $this->json($product, Response::HTTP_OK);
     }
@@ -109,13 +107,18 @@ class ProductApiController extends ApiController
     #[Route('/api/products/{id<\d+>}', methods: ['DELETE'])]
     public function deleteProduct(Request $request, ProductCacheInvalidator $productCacheInvalidator): Response
     {
-        //@TODO here should be implemented delete request
+
+        $id = $request->get('id');
+
+        $this->productRepository->remove($this->productRepository->findOne($id), true);
 
         /** Invalidate cache for product based on tag */
         $productCacheInvalidator->removeProductCache($request->get('id'));
 
+        //@TODO remove document from Elasticsearch (DELETE /<product_index>/_doc/<id>)
+
         /** Return 204 if successfully deleted*/
         /** Return 404 user calls delete on previously deleted product */
-        return $this->json('Product deleted', Response::HTTP_NO_CONTENT);
+        return $this->json('', Response::HTTP_NO_CONTENT);
     }
 }

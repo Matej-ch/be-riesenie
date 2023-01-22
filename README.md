@@ -11,13 +11,17 @@
 * **[GET]** ```/api/products``` listing produktov
     * pagination with **page** query parameter
 * **[POST]** ```/api/products``` tvorba produktu
-    * Request body: ``{
+    * Request body: ```{
       "name": "AMD 1235",
       "price": 450000,
       "category": {
       "name": "New GPU"
-      }    
-      }``
+      },"images": [
+      {"name": "image1","path": "/files/image1.png"},
+      {"name": "image2","path": "/files/image2.png"},
+      {"name": "image3","path": "/files/image3.png"}
+      ]    
+      }```
 * **[GET]** ```/api/products/{id}``` detail produktu
 * **[PATCH]** ```/api/products/{id}``` editacia produktu
     * Request body contains data you want to edit
