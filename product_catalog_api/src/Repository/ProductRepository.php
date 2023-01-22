@@ -24,7 +24,7 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
-    public function getPaginator($searchParameters = null, int $offset = 0): QueryBuilder
+    public function getPaginator($searchParameters = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('product');
 
@@ -67,7 +67,6 @@ class ProductRepository extends ServiceEntityRepository
             if (isset($searchParameters['price']['lte'])) {
                 $qb->andWhere('product.price < :lte')->setParameter('lte', $searchParameters['price']['lte']);
             }
-
         }
 
         return $qb;

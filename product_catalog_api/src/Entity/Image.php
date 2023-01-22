@@ -22,6 +22,7 @@ class Image
     private ?string $name = null;
 
     #[ORM\Column(length: 1024)]
+    #[Assert\NotBlank]
     #[Groups(['read', 'write'])]
     private ?string $path = null;
 

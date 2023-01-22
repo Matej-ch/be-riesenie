@@ -19,7 +19,6 @@ class Product
     private ?int $id = null;
 
     #[ORM\Column(length: 512)]
-    #[Assert\NotBlank]
     #[Groups('read')]
     private ?string $name = null;
 
@@ -27,8 +26,6 @@ class Product
      * Price of product in cents
      */
     #[ORM\Column]
-    #[Assert\NotBlank]
-    #[Assert\PositiveOrZero]
     #[Groups('read')]
     private ?int $price = null;
 
