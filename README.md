@@ -1,19 +1,16 @@
 # BE riesenie
 
-* [Zadanie](DOCS/ASSIGNMENT.md)
+* [Assignment](DOCS/ASSIGNMENT.md)
 * [ER diagram](DOCS/ERD.png)
 * [SQL](DOCS/SQL.md)
 
 ![ER diagram](DOCS/ERD.png)
 
-
-#### Solution without api platform is in branch
-
 ## Endpointy
 
-* **[GET]** ```/api/products``` listing produktov
+* **[GET]** ```/api/products``` liast of products
     * pagination with **page** query parameter
-* **[POST]** ```/api/products``` tvorba produktu
+* **[POST]** ```/api/products``` create new product
     * Request body: ```{
       "name": "AMD 1235",
       "price": 450000,
@@ -25,26 +22,12 @@
       {"name": "image3","path": "/files/image3.png"}
       ]    
       }```
-* **[GET]** ```/api/products/{id}``` detail produktu
-* **[PATCH]** ```/api/products/{id}``` editacia produktu
-  * Request body contains data you want to edit
-
-### SEARCHING
-
-* Query parameter **name** will look up products based on name
-    * _GET_ /api/products?page=1&name=nvidia
-* Query parameter **category.name** will return products based on their category
-* Query parameter **price** will filter products based on price
-    * **price[lte]**, **price[lt]**, **price[gte]**, **price[lt]**
-
-
-* **[GET]** ```/api/products``` listing produktov
-    * pagination with **page** query parameter
-* **[POST]** ```/api/products``` tvorba produktu
-* **[GET]** ```/api/products/{id}``` detail produktu
-* **[PATCH]** ```/api/products/{id}``` editacia produktu
+* **[GET]** ```/api/products/{id}``` product detail
+* **[PATCH]** ```/api/products/{id}``` product update
+    * Request body contains data you want to edit
 * **[DELETE]** ```/api/products/{id}``` delete product
-    * not fully implemented
+    * partially implemented
+    *
 
 ### CACHING
 
@@ -53,8 +36,8 @@
 * During **GET** ```/api/products/{id}``` request
     * When someone accesses product detail data is cached, and retrieved if it's not older than 1800 seconds
 * Making sure we don't have incorrect data, cache for product should be invalidated during **PATCH
-  **  ```/api/products/{id}``` request
-* After data is deleted from database with **DELETE** request, remove data inside redis cache and Elasticsearch
+  ** ```/api/products/{id}``` request
+* After data is deleted from database with **DELETE** request, remove data from redis cache and Elasticsearch
 * Product data can also be cached in **POST** request when new product is created, Also add to Elasticsearch
 
 **2.**
@@ -68,12 +51,11 @@
 ### SEARCHING
 
 * Query parameter **name** will look up products based on name
-    * **GET** /api/products?page=1&name=nvidia
+    * **GET** `/api/products?page=1&name=nvidia`
 * Query parameter **category** will return products based on their category
-    * **GET** /api/products?page=1&category=gpu
+    * **GET** `/api/products?category=gpu`
 * Query parameter **price** with gt, lt, lte, gte
-    * **GET** /api/products?page=1&price[gt]=100&price[lt]=200
-
+    * **GET** `/api/products?price[gt]=100&price[lt]=200`
 
 ### Elasticsearch
 
