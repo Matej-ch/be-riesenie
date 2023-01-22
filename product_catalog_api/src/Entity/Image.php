@@ -2,28 +2,12 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Action\NotFoundAction;
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\Get;
-use ApiPlatform\Metadata\GetCollection;
 use App\Repository\ImageRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ImageRepository::class)]
-#[ApiResource(operations: [
-    new Get(
-        controller: NotFoundAction::class,
-        output: false,
-        read: false
-    ),
-    new GetCollection(
-        controller: NotFoundAction::class,
-        output: false,
-        read: false
-    ),
-])]
 class Image
 {
     #[ORM\Id]
@@ -38,6 +22,7 @@ class Image
     private ?string $name = null;
 
     #[ORM\Column(length: 1024)]
+    #[Assert\NotBlank]
     #[Groups(['read', 'write'])]
     private ?string $path = null;
 

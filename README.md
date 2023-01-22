@@ -6,19 +6,28 @@
 
 ![ER diagram](DOCS/ERD.png)
 
-#### Solution with symfony an api platform is on main branch
 
-#### Solution without api platform is in branch [without-api-platform](https://github.com/Matej-ch/be-riesenie/tree/without-api-platform)
-
-## API PLATFORM
+#### Solution without api platform is in branch
 
 ## Endpointy
 
 * **[GET]** ```/api/products``` listing produktov
     * pagination with **page** query parameter
 * **[POST]** ```/api/products``` tvorba produktu
+    * Request body: ```{
+      "name": "AMD 1235",
+      "price": 450000,
+      "category": {
+      "name": "New GPU"
+      },"images": [
+      {"name": "image1","path": "/files/image1.png"},
+      {"name": "image2","path": "/files/image2.png"},
+      {"name": "image3","path": "/files/image3.png"}
+      ]    
+      }```
 * **[GET]** ```/api/products/{id}``` detail produktu
 * **[PATCH]** ```/api/products/{id}``` editacia produktu
+  * Request body contains data you want to edit
 
 ### SEARCHING
 
@@ -28,16 +37,6 @@
 * Query parameter **price** will filter products based on price
     * **price[lte]**, **price[lt]**, **price[gte]**, **price[lt]**
 
-### Elasticsearch
-
-* When using elastic search wit api platform the best way is to use
-  package [elasticsearch/elasticsearch](https://github.com/elastic/elasticsearch-php)
-* Inside our yaml configuration set host with port number on which elasticsearch runs (default is 9200) and mapping to
-  our entity product
-
----
-
-## WITHOUT API PLATFORM
 
 * **[GET]** ```/api/products``` listing produktov
     * pagination with **page** query parameter
@@ -45,7 +44,7 @@
 * **[GET]** ```/api/products/{id}``` detail produktu
 * **[PATCH]** ```/api/products/{id}``` editacia produktu
 * **[DELETE]** ```/api/products/{id}``` delete product
-    * not implemented, only shown
+    * not fully implemented
 
 ### CACHING
 
@@ -69,8 +68,12 @@
 ### SEARCHING
 
 * Query parameter **name** will look up products based on name
-    * _GET_ /api/products?page=1&name=nvidia
+    * **GET** /api/products?page=1&name=nvidia
 * Query parameter **category** will return products based on their category
+    * **GET** /api/products?page=1&category=gpu
+* Query parameter **price** with gt, lt, lte, gte
+    * **GET** /api/products?page=1&price[gt]=100&price[lt]=200
+
 
 ### Elasticsearch
 
