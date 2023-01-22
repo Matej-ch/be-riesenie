@@ -6,7 +6,10 @@
 
 ![ER diagram](DOCS/ERD.png)
 
+
 #### Solution without api platform is in branch
+
+## Endpointy
 
 * **[GET]** ```/api/products``` listing produktov
     * pagination with **page** query parameter
@@ -24,9 +27,24 @@
       }```
 * **[GET]** ```/api/products/{id}``` detail produktu
 * **[PATCH]** ```/api/products/{id}``` editacia produktu
-    * Request body contains data you want to edit
+  * Request body contains data you want to edit
+
+### SEARCHING
+
+* Query parameter **name** will look up products based on name
+    * _GET_ /api/products?page=1&name=nvidia
+* Query parameter **category.name** will return products based on their category
+* Query parameter **price** will filter products based on price
+    * **price[lte]**, **price[lt]**, **price[gte]**, **price[lt]**
+
+
+* **[GET]** ```/api/products``` listing produktov
+    * pagination with **page** query parameter
+* **[POST]** ```/api/products``` tvorba produktu
+* **[GET]** ```/api/products/{id}``` detail produktu
+* **[PATCH]** ```/api/products/{id}``` editacia produktu
 * **[DELETE]** ```/api/products/{id}``` delete product
-    * not implemented, only shown
+    * not fully implemented
 
 ### CACHING
 
@@ -55,6 +73,7 @@
     * **GET** /api/products?page=1&category=gpu
 * Query parameter **price** with gt, lt, lte, gte
     * **GET** /api/products?page=1&price[gt]=100&price[lt]=200
+
 
 ### Elasticsearch
 
