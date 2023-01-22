@@ -77,7 +77,6 @@ class ProductApiController extends ApiController
         /** @var Product $product */
         $product = $form->getData();
 
-
         if ($existingCategory = $categoryRepository->findOneBy(['name' => $product->getCategory()->getName()])) {
             $product->setCategory($existingCategory);
         }

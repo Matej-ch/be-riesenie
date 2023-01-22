@@ -11,8 +11,16 @@
 * **[GET]** ```/api/products``` listing produktov
     * pagination with **page** query parameter
 * **[POST]** ```/api/products``` tvorba produktu
+    * Request body: ``{
+      "name": "AMD 1235",
+      "price": 450000,
+      "category": {
+      "name": "New GPU"
+      }    
+      }``
 * **[GET]** ```/api/products/{id}``` detail produktu
 * **[PATCH]** ```/api/products/{id}``` editacia produktu
+    * Request body contains data you want to edit
 * **[DELETE]** ```/api/products/{id}``` delete product
     * not implemented, only shown
 

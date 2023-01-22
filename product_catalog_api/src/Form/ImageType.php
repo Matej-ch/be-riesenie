@@ -23,7 +23,7 @@ class ImageType extends AbstractType
                     ])
                 ]
             ])
-            ->add('name', TextType::class, [
+            ->add('path', TextType::class, [
                 'constraints' => [
                     new NotBlank(),
                     new Length([
