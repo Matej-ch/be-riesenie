@@ -34,7 +34,17 @@ class ProductApiController extends ApiController
         $adapter = new QueryAdapter($queryBuilder);
         $pager = Pagerfanta::createForCurrentPageWithMaxPerPage($adapter, $request->query->get('page', 1), $this->productRepository::PRODUCTS_PER_PAGE);
 
-        return $this->json($pager, Response::HTTP_OK, [], ['groups' => ['read']]);
+        return $this->json([
+            'products' => $pager->getCurrentPageResults(),
+            'pagination' => [
+                "current_page" => $pager->getCurrentPage(),
+                "has_previous_page" => $pager->hasPreviousPage(),
+                "has_next_page" => $pager->hasNextPage(),
+                'per_page' => $pager->getMaxPerPage(),
+                "total_items" => $pager->getNbResults(),
+                "total_pages" => $pager->getNbPages()
+            ]
+        ], Response::HTTP_OK, [], ['groups' => ['read']]);
     }
 
     #[Route('/api/products/{id<\d+>}', methods: ['GET'])]
